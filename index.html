@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nostorage. | Free macOS Junk File Cleaner</title>
+  <meta name="description" content="Free, open-source macOS junk file cleaner. Scan and remove caches, logs, old downloads, and more from your terminal.">
+  <link rel="icon" type="image/png" href="nostorage./dark.png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #000000;
+      --bg-elevated: #0a0a0a;
+      --bg-card: #111111;
+      --border: #1a1a1a;
+      --border-hover: #333333;
+      --text: #ffffff;
+      --text-muted: #888888;
+      --text-dim: #555555;
+      --accent: #ffffff;
+      --green: #4ade80;
+      --green-dim: #166534;
+      --red: #f87171;
+      --yellow: #facc15;
+      --blue: #60a5fa;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    nav .logo {
+      height: 32px;
+      border-radius: 6px;
+    }
+
+    nav .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    nav .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    nav .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover {
+      background: #e0e0e0;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border-hover);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text-muted);
+      background: var(--bg-card);
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(74, 222, 128, 0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      border: 1px solid var(--border-hover);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      width: fit-content;
+    }
+
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.03em;
+    }
+
+    .hero h1 .highlight {
+      color: var(--green);
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 500px;
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 2rem;
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .hero-meta-item {
+      text-align: left;
+    }
+
+    .hero-meta-item .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .hero-meta-item .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Terminal Preview */
+    .terminal {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .terminal-dot.red { background: #ff5f56; }
+    .terminal-dot.yellow { background: #ffbd2e; }
+    .terminal-dot.green { background: #27c93f; }
+
+    .terminal-title {
+      flex: 1;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .terminal-body {
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      min-height: 340px;
+    }
+
+    .terminal-line {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .terminal-prompt {
+      color: var(--green);
+      user-select: none;
+    }
+
+    .terminal-cmd {
+      color: var(--text);
+    }
+
+    .terminal-output {
+      color: var(--text-muted);
+      margin-left: 0;
+    }
+
+    .terminal-category {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.15rem 0;
+    }
+
+    .terminal-category .name {
+      color: var(--text);
+    }
+
+    .terminal-category .size {
+      color: var(--yellow);
+    }
+
+    .terminal-selected {
+      color: var(--green);
+    }
+
+    .terminal-total {
+      color: var(--green);
+      font-weight: 600;
+      border-top: 1px solid var(--border);
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Section */
+    section {
+      padding: 6rem 2rem;
+    }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin-bottom: 3rem;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* What it cleans */
+    .clean-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .clean-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: border-color 0.2s;
+    }
+
+    .clean-item:hover {
+      border-color: var(--border-hover);
+    }
+
+    .clean-item .icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .clean-item .info h4 {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+
+    .clean-item .info p {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    /* How it works */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), var(--border-hover), var(--border));
+    }
+
+    .step {
+      text-align: center;
+      position: relative;
+    }
+
+    .step-number {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-hover);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--green);
+      position: relative;
+      z-index: 1;
+    }
+
+    .step h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    /* Keyboard shortcuts */
+    .shortcuts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .shortcut {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      height: 36px;
+      padding: 0 0.5rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-hover);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      box-shadow: 0 2px 0 var(--border);
+    }
+
+    .shortcut span {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Install section */
+    .install-section {
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .install-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .install-option {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .install-option.recommended::before {
+      content: 'Recommended';
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      padding: 0.3rem 0.75rem;
+      background: var(--green-dim);
+      color: var(--green);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+
+    .install-option h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .install-option .subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .install-cmd {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .install-cmd code {
+      white-space: nowrap;
+    }
+
+    .install-cmd .copy-btn {
+      background: none;
+      border: 1px solid var(--border-hover);
+      color: var(--text-muted);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .install-cmd .copy-btn:hover {
+      border-color: var(--text-muted);
+      color: var(--text);
+    }
+
+    .requirements {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .requirements span {
+      color: var(--text-muted);
+    }
+
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      position: relative;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(74, 222, 128, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section .section-title {
+      max-width: 600px;
+      margin: 0 auto 1rem;
+    }
+
+    .cta-section .section-desc {
+      margin: 0 auto 2.5rem;
+      text-align: center;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Footer */
+    footer {
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .footer-left img {
+      height: 24px;
+      border-radius: 4px;
+    }
+
+    .footer-left span {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+
+      .steps::before {
+        display: none;
+      }
+
+      .install-options {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-meta {
+        gap: 1.5rem;
+      }
+
+      nav .nav-links {
+        gap: 1rem;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .clean-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate {
+      animation: fadeUp 0.6s ease-out forwards;
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-inner">
+      <img src="nostorage./dark.png" alt="nostorage." class="logo">
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#cleans">What it cleans</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/1rychv/nostorage" target="_blank">GitHub</a>
+        <a href="https://github.com/1rychv/nostorage/releases/tag/1.0" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">Download</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge">
+          <span class="dot"></span>
+          <span>v1.0 &mdash; Free &amp; open source</span>
+        </div>
+        <h1>Reclaim your Mac's <span class="highlight">storage.</span></h1>
+        <p>Free, open-source junk file cleaner for macOS. Scan and remove caches, logs, old downloads, and more &mdash; all from your terminal.</p>
+        <div class="hero-buttons">
+          <a href="https://github.com/1rychv/nostorage/releases/tag/1.0" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download .dmg
+          </a>
+          <a href="#install" class="btn btn-secondary">
+            <span class="mono" style="font-size: 0.8rem;">$</span> Install via CLI
+          </a>
+        </div>
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            <div class="value">100%</div>
+            <div class="label">Free forever</div>
+          </div>
+          <div class="hero-meta-item">
+            <div class="value">macOS</div>
+            <div class="label">10.15 or later</div>
+          </div>
+          <div class="hero-meta-item">
+            <div class="value">OSS</div>
+            <div class="label">Open source</div>
+          </div>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-header">
+          <div class="terminal-dot red"></div>
+          <div class="terminal-dot yellow"></div>
+          <div class="terminal-dot green"></div>
+          <div class="terminal-title">nostorage &mdash; Terminal</div>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-line">
+            <span class="terminal-prompt">$</span>
+            <span class="terminal-cmd">nostorage</span>
+          </div>
+          <br>
+          <div class="terminal-output" style="color: var(--text); font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem;">nostorage. &mdash; junk file cleaner</div>
+          <div class="terminal-output" style="margin-bottom: 0.75rem;">Scanning your Mac for junk files...</div>
+          <div class="terminal-category">
+            <span class="name"><span class="terminal-selected">[x]</span> Browser Caches</span>
+            <span class="size">2.4 GB</span>
+          </div>
+          <div class="terminal-category">
+            <span class="name"><span class="terminal-selected">[x]</span> System Caches &amp; Logs</span>
+            <span class="size">1.8 GB</span>
+          </div>
+          <div class="terminal-category">
+            <span class="name"><span class="terminal-selected">[x]</span> Xcode DerivedData</span>
+            <span class="size">5.2 GB</span>
+          </div>
+          <div class="terminal-category">
+            <span class="name"><span style="color: var(--text-dim);">[ ]</span> Package Manager Caches</span>
+            <span class="size">890 MB</span>
+          </div>
+          <div class="terminal-category">
+            <span class="name"><span class="terminal-selected">[x]</span> Old Downloads (30+ days)</span>
+            <span class="size">3.1 GB</span>
+          </div>
+          <div class="terminal-category">
+            <span class="name"><span style="color: var(--text-dim);">[ ]</span> iOS Device Backups</span>
+            <span class="size">8.6 GB</span>
+          </div>
+          <div class="terminal-category">
+            <span class="name"><span class="terminal-selected">[x]</span> Mail Downloads</span>
+            <span class="size">420 MB</span>
+          </div>
+          <br>
+          <div class="terminal-total">Total selected: 12.9 GB reclaimable</div>
+          <br>
+          <div class="terminal-output" style="font-size: 0.75rem;">[Space] select &middot; [A] all &middot; [C] clean &middot; [D] details &middot; [Q] quit</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="section-inner">
+      <div class="section-label mono">// Features</div>
+      <h2 class="section-title">Why choose nostorage?</h2>
+      <p class="section-desc">A lightweight, privacy-first cleaner that does exactly what you need &mdash; nothing more.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3>Privacy first</h3>
+          <p>Runs entirely on your machine. No accounts, no cloud, no telemetry. Your data never leaves your Mac.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <h3>Lightning fast</h3>
+          <p>Scans your entire system in seconds. Select what to clean and reclaim gigabytes instantly.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <h3>Open source</h3>
+          <p>Fully transparent codebase on GitHub. Inspect, modify, and contribute. No hidden agendas.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          </div>
+          <h3>Terminal native</h3>
+          <p>Built for developers who live in the terminal. Keyboard-driven interface with intuitive controls.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3>Smart scanning</h3>
+          <p>Targets known junk file locations. Browser caches, build artifacts, package caches, and more.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Safe by default</h3>
+          <p>Preview everything before deleting. Nothing is removed without your explicit confirmation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What it cleans -->
+  <section id="cleans" style="background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="section-inner">
+      <div class="section-label mono">// What it cleans</div>
+      <h2 class="section-title">Everything taking up space</h2>
+      <p class="section-desc">nostorage. knows exactly where macOS and developer tools hide their junk files.</p>
+      <div class="clean-grid">
+        <div class="clean-item">
+          <div class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="info">
+            <h4>Browser Caches</h4>
+            <p>Chrome, Safari, Firefox</p>
+          </div>
+        </div>
+        <div class="clean-item">
+          <div class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div class="info">
+            <h4>System Caches & Logs</h4>
+            <p>macOS system files</p>
+          </div>
+        </div>
+        <div class="clean-item">
+          <div class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5"><path d="M2 20h20"/><path d="M5 20V8.2a1 1 0 0 1 .4-.8l6-4.5a1 1 0 0 1 1.2 0l6 4.5a1 1 0 0 1 .4.8V20"/><path d="M9 20v-6h6v6"/></svg>
+          </div>
+          <div class="info">
+            <h4>Xcode DerivedData</h4>
+            <p>Build artifacts & archives</p>
+          </div>
+        </div>
+        <div class="clean-item">
+          <div class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="info">
+            <h4>Package Managers</h4>
+            <p>Homebrew, npm, yarn, pip</p>
+          </div>
+        </div>
+        <div class="clean-item">
+          <div class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </div>
+          <div class="info">
+            <h4>Trash & Downloads</h4>
+            <p>Old files older than 30 days</p>
+          </div>
+        </div>
+        <div class="clean-item">
+          <div class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="info">
+            <h4>iOS Backups</h4>
+            <p>Old device backup files</p>
+          </div>
+        </div>
+        <div class="clean-item">
+          <div class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="info">
+            <h4>Mail Downloads</h4>
+            <p>Cached email attachments</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section>
+    <div class="section-inner">
+      <div class="section-label mono" style="text-align: center;">// How it works</div>
+      <h2 class="section-title" style="text-align: center;">Three steps to a cleaner Mac</h2>
+      <p class="section-desc" style="text-align: center; margin: 0 auto 4rem;">No bloated GUI. No subscription. Just a simple terminal command.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Install</h3>
+          <p>Download the .dmg or run a single terminal command to install.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Scan</h3>
+          <p>Run <code class="mono" style="color: var(--green);">nostorage</code> and instantly see all junk files on your Mac.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Clean</h3>
+          <p>Select categories, press <kbd style="display: inline; padding: 0.1rem 0.4rem; font-size: 0.75rem;">C</kbd>, and reclaim your storage.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Keyboard controls -->
+  <section style="background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="section-inner" style="text-align: center;">
+      <div class="section-label mono">// Controls</div>
+      <h2 class="section-title">Keyboard-driven interface</h2>
+      <p class="section-desc" style="margin: 0 auto 3rem; text-align: center;">Navigate and clean without ever touching your mouse.</p>
+      <div class="shortcuts">
+        <div class="shortcut"><kbd>Space</kbd> <span>Select item</span></div>
+        <div class="shortcut"><kbd>A</kbd> <span>Select all</span></div>
+        <div class="shortcut"><kbd>C</kbd> <span>Clean</span></div>
+        <div class="shortcut"><kbd>D</kbd> <span>View details</span></div>
+        <div class="shortcut"><kbd>R</kbd> <span>Rescan</span></div>
+        <div class="shortcut"><kbd>Q</kbd> <span>Quit</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" class="install-section">
+    <div class="section-inner">
+      <div class="section-label mono">// Install</div>
+      <h2 class="section-title">Get started in seconds</h2>
+      <p class="section-desc">Choose your preferred installation method.</p>
+      <div class="install-options">
+        <div class="install-option recommended">
+          <h3>Mac App</h3>
+          <p class="subtitle">Download the .dmg and drag to Applications</p>
+          <a href="https://github.com/1rychv/nostorage/releases/tag/1.0" class="btn btn-primary" style="margin-bottom: 1.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download nostorage.dmg
+          </a>
+          <p class="requirements"><span>Requires:</span> macOS 10.15+ &middot; Python 3</p>
+        </div>
+        <div class="install-option">
+          <h3>Command Line</h3>
+          <p class="subtitle">One command to install from your terminal</p>
+          <div class="install-cmd">
+            <code><span style="color: var(--green);">$</span> curl -fsSL https://raw.githubusercontent.com/1rychv/nostorage/main/install.sh | bash</code>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText('curl -fsSL https://raw.githubusercontent.com/1rychv/nostorage/main/install.sh | bash').then(() => { this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 1500); })">Copy</button>
+          </div>
+          <p class="requirements">Then run <code class="mono" style="color: var(--green);">nostorage</code> from anywhere in your terminal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" style="padding: 8rem 2rem;">
+    <div class="section-inner" style="position: relative; z-index: 1;">
+      <h2 class="section-title">Stop paying for disk space<br>you don't need.</h2>
+      <p class="section-desc">nostorage. is free, open-source, and built for developers who value simplicity.</p>
+      <div class="cta-buttons">
+        <a href="https://github.com/1rychv/nostorage/releases/tag/1.0" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 1rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download for Mac
+        </a>
+        <a href="https://github.com/1rychv/nostorage" target="_blank" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 1rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <img src="nostorage./dark.png" alt="nostorage.">
+        <span>Free &amp; open-source macOS cleaner</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/1rychv/nostorage" target="_blank">GitHub</a>
+        <a href="https://github.com/1rychv/nostorage/releases/tag/1.0" target="_blank">Releases</a>
+        <a href="https://github.com/1rychv/nostorage/issues" target="_blank">Issues</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
