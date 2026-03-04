@@ -780,7 +780,7 @@
         <a href="#cleans">What it cleans</a>
         <a href="#install">Install</a>
         <a href="https://github.com/1rychv/nostorage" target="_blank">GitHub</a>
-        <a href="https://github.com/1rychv/nostorage/releases/tag/1.0" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">Download</a>
+        <a href="https://github.com/1rychv/nostorage/releases/download/1.0/nostorage.dmg" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;" download>Download</a>
       </div>
     </div>
   </nav>
@@ -796,13 +796,13 @@
         <h1>Reclaim your Mac's <span class="highlight">storage.</span></h1>
         <p>Free, open-source junk file cleaner for macOS. Scan and remove caches, logs, old downloads, and more &mdash; all from your terminal.</p>
         <div class="hero-buttons">
-          <a href="https://github.com/1rychv/nostorage/releases/tag/1.0" class="btn btn-primary">
+          <a href="https://github.com/1rychv/nostorage/releases/download/1.0/nostorage.dmg" class="btn btn-primary" download>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download .dmg
           </a>
-          <a href="#install" class="btn btn-secondary">
-            <span class="mono" style="font-size: 0.8rem;">$</span> Install via CLI
-          </a>
+          <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('curl -fsSL https://raw.githubusercontent.com/1rychv/nostorage/main/install.sh | bash').then(() => { this.querySelector('.cli-label').textContent = 'Copied!'; setTimeout(() => this.querySelector('.cli-label').textContent = 'Install via CLI', 1500); })">
+            <span class="mono" style="font-size: 0.8rem;">$</span> <span class="cli-label">Install via CLI</span>
+          </button>
         </div>
         <div class="hero-meta">
           <div class="hero-meta-item">
@@ -1051,7 +1051,7 @@
         <div class="install-option recommended">
           <h3>Mac App</h3>
           <p class="subtitle">Download the .dmg and drag to Applications</p>
-          <a href="https://github.com/1rychv/nostorage/releases/tag/1.0" class="btn btn-primary" style="margin-bottom: 1.5rem;">
+          <a href="https://github.com/1rychv/nostorage/releases/download/1.0/nostorage.dmg" class="btn btn-primary" style="margin-bottom: 1.5rem;" download>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download nostorage.dmg
           </a>
@@ -1076,7 +1076,7 @@
       <h2 class="section-title">Stop paying for disk space<br>you don't need.</h2>
       <p class="section-desc">nostorage. is free, open-source, and built for developers who value simplicity.</p>
       <div class="cta-buttons">
-        <a href="https://github.com/1rychv/nostorage/releases/tag/1.0" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 1rem;">
+        <a href="https://github.com/1rychv/nostorage/releases/download/1.0/nostorage.dmg" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 1rem;" download>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download for Mac
         </a>
