@@ -36,6 +36,10 @@
       scroll-behavior: smooth;
     }
 
+    html {
+      overflow-x: hidden;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
@@ -140,10 +144,10 @@
     .hero::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: radial-gradient(circle at 30% 50%, rgba(74, 222, 128, 0.03) 0%, transparent 50%);
       pointer-events: none;
     }
@@ -634,11 +638,10 @@
       content: '';
       position: absolute;
       top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(74, 222, 128, 0.04) 0%, transparent 70%);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(74, 222, 128, 0.04) 0%, transparent 70%);
       pointer-events: none;
     }
 
